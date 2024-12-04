@@ -29,4 +29,5 @@ public class Blueprint {
         String row ="id int auto_increment not null primary key";
         Blueprint.colls.add(row);
     }
+     // Agregando esto
 }
