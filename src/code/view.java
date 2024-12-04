@@ -4,6 +4,13 @@
  */
 package code;
 
+import code.database.ormEuroza.Schema;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+
 /**
  *
  * @author User
@@ -13,8 +20,13 @@ public class view extends javax.swing.JFrame {
     /**
      * Creates new form view
      */
-    public view() {
+    public view() throws SQLException {
         initComponents();
+        Schema.create("Aña", table -> {
+            table.id();
+            table.string("nombre", 45);
+            table.string("direccion", 45);
+        });
     }
 
     /**
@@ -84,7 +96,11 @@ public class view extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new view().setVisible(true);
+                try {
+                    new view().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(view.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
