@@ -4,9 +4,19 @@
  */
 package code;
 
+//import at.favre.lib.crypto.bcrypt.BCrypt;
 import code.helpers.InputValidator;
+import code.helpers.Auth;
 import java.util.Arrays;
 import javax.swing.JOptionPane;
+import code.database.Database;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -61,14 +71,13 @@ public class frmRegister extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jEditorPane1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
         setPreferredSize(new java.awt.Dimension(520, 570));
         setResizable(false);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel1.setText("Registrarse");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 10, -1, -1));
 
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jPanel1.setPreferredSize(new java.awt.Dimension(370, 470));
@@ -171,33 +180,83 @@ public class frmRegister extends javax.swing.JFrame {
                 .addComponent(btnRegister)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(113, Short.MAX_VALUE))
+                .addContainerGap(110, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 40, 350, 480));
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(200, 200, 200)
+                .addComponent(jLabel1))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(80, 80, 80)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addComponent(jLabel1)
+                .addGap(8, 8, 8)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRegisterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterActionPerformed
+        // Obtener los valores de los campos
         String email = txtEmail.getText();
         String username = txtUsername.getText();
+        char[] password = txtpPassword.getPassword();
 
+        // Validar entradas
         boolean isEmail = InputValidator.validateEmail(email);
         boolean isUsername = InputValidator.validateUsername(username);
-        boolean passwordEquals = Arrays.equals(txtpPassword.getPassword(), txtpPasswordConfirm.getPassword());
+        boolean passwordEquals = Arrays.equals(password, txtpPasswordConfirm.getPassword());
 
         lblEmailError.setText(InputValidator.getValidationError("email", isEmail));
         lblUsernameError.setText(InputValidator.getValidationError("username", isUsername));
         lblPasswordConfirmError.setText(InputValidator.getValidationError("password", passwordEquals));
 
+        // Solo proceder si las validaciones son correctas
         if (isEmail && isUsername && passwordEquals) {
-            //Registrar y logear al usuario
-            JOptionPane.showMessageDialog(this, "Te has registrado exitosamente.");
+            // Registrar y logear al usuario
+            Database db = new Database();
+
+            String passwordString = new String(password);
+            // Encriptar la contraseña utilizando BCrypt
+            //String hashedPassword = BCrypt.withDefaults().hashToString(12, password);
+
+            // Parámetros para la consulta con la contraseña encriptada
+            List<String> params = new ArrayList<>();
+            params.add(username);
+            params.add(email);
+            params.add(passwordString);
+            params.add("user");
+
+            // Ejecutar la consulta para registrar al usuario
+            int rowsAffected = db.update("INSERT INTO libraryuser (name, email, password, role) VALUES (?, ?, ?, ?)", params.toArray());
+
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "Te has registrado exitosamente.");
+                new frmLogin().login(email, passwordString);
+            } else {
+                JOptionPane.showMessageDialog(null, "Ocurrió un error al registrarte.");
+            }
+
+            // Mostrar mensaje y cambiar de vista
             dispose();
-            new view().setVisible(true);
+            try {
+                new view().setVisible(true);
+            } catch (SQLException ex) {
+                Logger.getLogger(frmRegister.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+
 
     }//GEN-LAST:event_btnRegisterActionPerformed
 

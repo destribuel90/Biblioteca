@@ -4,12 +4,16 @@
  */
 package code;
 
-import code.database.ormEuroza.Schema;
+import code.database.Database;
 import java.sql.SQLException;
+import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
+import code.helpers.Auth;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -21,12 +25,24 @@ public class view extends javax.swing.JFrame {
      * Creates new form view
      */
     public view() throws SQLException {
+        //System.out.println(Auth.userData[1]);
         initComponents();
-        Schema.create("Aña", table -> {
-            table.id();
-            table.string("nombre", 45);
-            table.string("direccion", 45);
-        });
+        loadBooks();
+        initializeTable();
+        verifyAdminPrivileges();
+    }
+    
+    private void loadBooks() {
+        Database db = new Database();
+        ResultSet rs = db.executeQuery(
+                "SELECT b.id, b.title, b.author, b.publisher, b.publication_year, c.name AS category, b.description, b.copies, b.status, b.isbn, b.price, s.name AS supplier "
+                + "FROM book b "
+                + "LEFT JOIN category c ON b.category_id = c.id "
+                + "LEFT JOIN supplier s ON b.supplier_id = s.id",
+                new String[0]
+        );
+        
+        buildTable(rs);
     }
 
     /**
@@ -38,33 +54,759 @@ public class view extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblBooks = new javax.swing.JTable();
+        jPanel1 = new javax.swing.JPanel();
+        txtSearch = new javax.swing.JTextField();
+        jPanel2 = new javax.swing.JPanel();
+        cboCriteria = new javax.swing.JComboBox<>();
+        btnSearch = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        btnShowAll = new javax.swing.JButton();
+        btnBooks = new javax.swing.JButton();
+        btnMyPurchases = new javax.swing.JButton();
+        btnLoan = new javax.swing.JButton();
+        btnReviews = new javax.swing.JButton();
+        btnLogout = new javax.swing.JButton();
+        btnClose = new javax.swing.JButton();
+        btnProg = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        pnlAdmin = new javax.swing.JPanel();
+        btnAdminCategory = new javax.swing.JButton();
+        btnAdminLoans = new javax.swing.JButton();
+        btnNewBook = new javax.swing.JButton();
+        btnAdminSuppliers = new javax.swing.JButton();
+        btnAdminUser = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
         setResizable(false);
 
-        jLabel1.setText("Hola mi gente, agregando esto. Pedroooo");
+        tblBooks.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "id", "Título", "Autor", "Editorial", "Año de publicación", "Categoría", "Descripción", "Copias", "Estado", "ISBN"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblBooks);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Buscar por:"));
+
+        cboCriteria.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "id", "title", "author", "publisher", "publication_year", "category", "description", "copies", "status", "isbn", "price" }));
+        cboCriteria.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addComponent(cboCriteria, 0, 214, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(26, 26, 26)
+                .addComponent(cboCriteria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(36, Short.MAX_VALUE))
+        );
+
+        btnSearch.setText("Buscar");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 374, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnSearch)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSearch))
+                .addGap(41, 41, 41))
+        );
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        btnShowAll.setText("Mostrar todo");
+        btnShowAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnShowAllActionPerformed(evt);
+            }
+        });
+
+        btnBooks.setText("Ver libros");
+        btnBooks.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBooksActionPerformed(evt);
+            }
+        });
+
+        btnMyPurchases.setText("Mis compras");
+        btnMyPurchases.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMyPurchasesActionPerformed(evt);
+            }
+        });
+
+        btnLoan.setText("Mis préstamos");
+        btnLoan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoanActionPerformed(evt);
+            }
+        });
+
+        btnReviews.setText("Ver reseñas");
+        btnReviews.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReviewsActionPerformed(evt);
+            }
+        });
+
+        btnLogout.setText("Cerrar sesión");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
+
+        btnClose.setText("Cerrar aplicación");
+        btnClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCloseActionPerformed(evt);
+            }
+        });
+
+        btnProg.setText("Programadores");
+        btnProg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProgActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(btnShowAll)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnBooks)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnMyPurchases)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnLoan)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnReviews)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnLogout))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(btnClose)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnProg)))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap(25, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnShowAll)
+                    .addComponent(btnBooks)
+                    .addComponent(btnMyPurchases)
+                    .addComponent(btnLoan)
+                    .addComponent(btnReviews)
+                    .addComponent(btnLogout))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnClose)
+                    .addComponent(btnProg))
+                .addContainerGap())
+        );
+
+        jPanel4.setMinimumSize(new java.awt.Dimension(518, 100));
+
+        btnAdminCategory.setText("Categorías");
+        btnAdminCategory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAdminCategoryActionPerformed(evt);
+            }
+        });
+
+        btnAdminLoans.setText("Préstamos");
+        btnAdminLoans.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAdminLoansActionPerformed(evt);
+            }
+        });
+
+        btnNewBook.setText("Nuevo libro");
+        btnNewBook.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNewBookActionPerformed(evt);
+            }
+        });
+
+        btnAdminSuppliers.setText("Proveedores");
+        btnAdminSuppliers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAdminSuppliersActionPerformed(evt);
+            }
+        });
+
+        btnAdminUser.setText("Usuarios");
+        btnAdminUser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAdminUserActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlAdminLayout = new javax.swing.GroupLayout(pnlAdmin);
+        pnlAdmin.setLayout(pnlAdminLayout);
+        pnlAdminLayout.setHorizontalGroup(
+            pnlAdminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlAdminLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnAdminCategory)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAdminLoans)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAdminUser)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnNewBook)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnAdminSuppliers))
+        );
+        pnlAdminLayout.setVerticalGroup(
+            pnlAdminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlAdminLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnlAdminLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAdminCategory)
+                    .addComponent(btnAdminLoans)
+                    .addComponent(btnNewBook)
+                    .addComponent(btnAdminSuppliers)
+                    .addComponent(btnAdminUser))
+                .addContainerGap(7, Short.MAX_VALUE))
+        );
+
+        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pnlAdmin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(pnlAdmin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(31, Short.MAX_VALUE))
+            .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+        );
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(89, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(81, 81, 81))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jScrollPane1)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(95, 95, 95)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(117, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(27, 27, 27)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        String search = txtSearch.getText();
+        String criteria = (String) cboCriteria.getSelectedItem();
+
+        // Validar que el campo de búsqueda no esté vacío
+        if (search.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor ingresa un término de búsqueda.");
+            return;
+        }
+
+        // Validar criterios permitidos
+        if (!criteria.matches("id|title|author|publisher|year|category|description|copies|status|isbn|price|supplier")) {
+            JOptionPane.showMessageDialog(this, "Criterio inválido.");
+            return;
+        }
+
+        // Ajustar el criterio de búsqueda
+        switch (criteria) {
+            case "category" ->
+                criteria = "c.name"; // Prefijo para la tabla `category`
+            case "supplier" ->
+                criteria = "s.name"; // Prefijo para la tabla `supplier`
+            default ->
+                criteria = "b." + criteria; // Prefijo para la tabla `book`
+        }
+
+        // Construir la consulta SQL
+        String sql = "SELECT b.id, b.title, b.author, b.publisher, b.publication_year, c.name AS category, b.description, b.copies, b.status, b.isbn, b.price, s.name AS supplier "
+                + "FROM book b "
+                + "LEFT JOIN category c ON b.category_id = c.id "
+                + "LEFT JOIN supplier s ON b.supplier_id = s.id "
+                + "WHERE " + criteria + " LIKE ?";
+        String[] params = {"%" + search + "%"};
+        
+        Database db = new Database();
+        ResultSet rs = db.executeQuery(sql, params);
+        
+        try {
+            if (rs == null || !rs.isBeforeFirst()) { // Verificar si hay resultados
+                JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al buscar libros: " + e.getMessage());
+            return;
+        }
+
+        // Construir la tabla con los resultados
+        buildTable(rs);
+    }//GEN-LAST:event_btnSearchActionPerformed
+    
+    private void verifyAdminPrivileges() {
+        
+        if (!Auth.isAdmin()) {
+            pnlAdmin.setVisible(false);
+            pack();
+        }
+        
+    }
+
+    private void btnShowAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShowAllActionPerformed
+        // TODO add your handling code here:
+        loadBooks();
+    }//GEN-LAST:event_btnShowAllActionPerformed
+
+    private void btnMyPurchasesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMyPurchasesActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new frmPurchase().setVisible(true);
+    }//GEN-LAST:event_btnMyPurchasesActionPerformed
+
+    private void btnLoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoanActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new frmLoans().setVisible(true);
+    }//GEN-LAST:event_btnLoanActionPerformed
+
+    private void btnReviewsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReviewsActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new reviews().setVisible(true);
+    }//GEN-LAST:event_btnReviewsActionPerformed
+
+    private void btnBooksActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBooksActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new books().setVisible(true);
+    }//GEN-LAST:event_btnBooksActionPerformed
+
+    private void btnAdminCategoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdminCategoryActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new code.admin.frmCategory().setVisible(true);
+    }//GEN-LAST:event_btnAdminCategoryActionPerformed
+
+    private void btnNewBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewBookActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new frmBook().setVisible(true);
+    }//GEN-LAST:event_btnNewBookActionPerformed
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        // TODO add your handling code here:
+        Auth.destroySession();
+        dispose();
+        new frmLogin().setVisible(true);
+    }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnAdminSuppliersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdminSuppliersActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new code.admin.Supplier().setVisible(true);
+    }//GEN-LAST:event_btnAdminSuppliersActionPerformed
+
+    private void btnAdminUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdminUserActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new code.admin.User().setVisible(true);
+    }//GEN-LAST:event_btnAdminUserActionPerformed
+
+    private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
+        // TODO add your handling code here:
+        System.exit(0);
+    }//GEN-LAST:event_btnCloseActionPerformed
+
+    private void btnProgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProgActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new frmProgramador().setVisible(true);
+    }//GEN-LAST:event_btnProgActionPerformed
+
+    private void btnAdminLoansActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdminLoansActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new code.admin.Loans().setVisible(true);
+    }//GEN-LAST:event_btnAdminLoansActionPerformed
+    
+    private void initializeTable() {
+        tblBooks.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int row = tblBooks.getSelectedRow();
+                if (row != -1) {
+                    handleBookRowDoubleClick(row);
+                }
+            }
+        });
+    }
+    
+    private void handleBuyBook(int bookId, double price, String[] supplier) throws SQLException {
+        String quantityStr = JOptionPane.showInputDialog(this, "¿Cuántas copias deseas comprar?");
+        
+        if (quantityStr == null || quantityStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Compra cancelada.");
+            tblBooks.requestFocusInWindow();
+            return;
+        }
+        
+        try {
+            int quantity = Integer.parseInt(quantityStr.trim()); // Trim para evitar espacios extra
+
+            if (quantity <= 0) {
+                JOptionPane.showMessageDialog(this, "La cantidad debe ser mayor a cero.");
+                return;
+            }
+            
+            Database db = new Database();
+
+            // Asegurarse de que el proveedor esté en el arreglo y consultar correctamente
+            ResultSet supplierId = db.executeQuery("SELECT id FROM supplier WHERE name = ?", supplier);
+            
+            if (supplierId == null || !supplierId.next()) {
+                JOptionPane.showMessageDialog(null, "Ocurrió un error al realizar la compra");
+                return;
+            }
+            
+            double totalCost = price * quantity;
+
+            // Aquí usamos el ID del proveedor correctamente
+            buyBook(bookId, supplierId.getInt("id"), quantity, price, totalCost);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor ingresa un valor numérico válido.");
+        }
+    }
+    
+    private void handleBookRowDoubleClick(int row) {
+        // Obtener datos del libro de la fila seleccionada
+        String bookId = tblBooks.getValueAt(row, 0).toString(); // ID del libro
+        String title = tblBooks.getValueAt(row, 1).toString(); // Título del libro
+
+        String[] supplier = {tblBooks.getValueAt(row, 6).toString()}; //Nombre del proveedor
+        double price = Double.parseDouble((String) tblBooks.getValueAt(row, 11)); //Precio del libro
+
+        // Crear una lista de opciones
+        List<String> options = new ArrayList<>();
+        options.add("Comprar");
+        options.add("Prestar");
+        options.add("Cancelar");
+
+        // Agregar opciones de administrador
+        if (Auth.isAdmin()) {
+            options.add("Editar");
+            options.add("Eliminar");
+        }
+        
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "¿Qué acción deseas realizar con el libro \"" + title + "\"?",
+                "Opciones para el libro",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                options.toArray(),
+                options.get(0)
+        );
+
+        // Ejecutar acción según la elección
+        switch (choice) {
+            case 0 -> {
+                try {
+                    handleBuyBook(Integer.parseInt(bookId), price, supplier); // Comprar
+                } catch (SQLException ex) {
+                    Logger.getLogger(view.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            case 1 ->
+                handleLoanBook(Integer.parseInt(bookId)); // Prestar
+            case 2 ->
+                JOptionPane.showMessageDialog(this, "Acción cancelada.");
+            case 3 -> { //Sólo administradores (Editar)
+
+                dispose();
+                
+                Database db = new Database();
+                
+                String[] params = {bookId};
+                
+                ResultSet rs = db.executeQuery("SELECT * FROM book WHERE id = ?", params);
+                
+                try {
+                    if (rs != null && rs.next()) {
+                        try {
+                            
+                            new frmBook(
+                                    String.valueOf(rs.getInt("id")),
+                                    rs.getString("title"),
+                                    rs.getString("author"),
+                                    rs.getString("publisher"),
+                                    rs.getString("publication_year"),
+                                    String.valueOf(rs.getInt("category_id")),
+                                    rs.getString("isbn"),
+                                    String.valueOf(rs.getInt("copies")),
+                                    rs.getString("description"),
+                                    rs.getString("status"),
+                                    rs.getString("price"),
+                                    String.valueOf(rs.getInt("supplier_id")),
+                                    rs.getString("image") != null ? rs.getString("image") : ""
+                            ).setVisible(true);
+                        } catch (SQLException ex) {
+                            Logger.getLogger(view.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(view.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+            
+            case 4 -> { //Sólo administradores (Eliminar)
+
+                int opt = JOptionPane.showConfirmDialog(null, "¿Realmente deseas eliminar el libro \"" + title + "\"?", "Eliminar libro", JOptionPane.YES_NO_OPTION);
+                
+                if (opt == JOptionPane.YES_OPTION) {
+                    Database db = new Database();
+                    
+                    String[] params = {bookId};
+                    
+                    int rowsAffected = db.update("DELETE FROM book WHERE id = ?", params);
+                    
+                    JOptionPane.showMessageDialog(this, rowsAffected > 0 ? "Libro eliminado correctamente" : "Error al eliminar libro");
+                } else if (opt == JOptionPane.NO_OPTION) {
+                    JOptionPane.showMessageDialog(null, "Acción cancelada");
+                }
+                
+            }
+        }
+    }
+    
+    private void buildTable(ResultSet rs) {
+        DefaultTableModel model = new DefaultTableModel(
+                new String[]{"ID", "Título", "Autor", "Editorial", "Año", "Categoría", "Proveedor", "Descripción", "Copias", "Estado", "ISBN", "Price"},
+                0
+        );
+        
+        try {
+            while (rs != null && rs.next()) {
+                String id = rs.getString("id");
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String publisher = rs.getString("publisher");
+                String year = rs.getString("publication_year");
+                String category = rs.getString("category");
+                String supplier = rs.getString("supplier");
+                String desc = rs.getString("description");
+                String copies = rs.getString("copies");
+                String status = rs.getString("status");
+                String isbn = rs.getString("isbn");
+                String price = rs.getString("price");
+                
+                model.addRow(new Object[]{id, title, author, publisher, year, category, supplier, desc, copies, status, isbn, price});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al cargar los libros: " + e.getMessage());
+        }
+
+        // Asignar el modelo a la tabla
+        tblBooks.setModel(model);
+    }
+    
+    private void buyBook(int bookId, int supplierId, int quantity, double costPerUnit, double totalCost) {
+        Database db = new Database();
+
+        // Verificar si el libro está disponible
+        ResultSet rs = db.executeQuery(
+                "SELECT copies, status FROM Book WHERE id = ? AND status = 'available'",
+                new String[]{String.valueOf(bookId)}
+        );
+        
+        try {
+            if (rs != null && rs.next()) {
+                int currentCopies = rs.getInt("copies");
+                
+                if (quantity > currentCopies) {
+                    JOptionPane.showMessageDialog(null, "No puedes comprar más copias de las existentes.");
+                    return;
+                }
+                
+                if (Auth.getUserData() == null) {
+                    return;
+                }
+
+                // Registrar la compra
+                String[] purchaseParams = {
+                    Auth.userData[0], // user_id
+                    String.valueOf(supplierId), // supplier_id
+                    String.valueOf(bookId), // book_id
+                    String.valueOf(quantity), // quantity
+                    String.valueOf(costPerUnit), // cost_per_unit
+                    String.valueOf(totalCost) // total_cost
+                };
+                int rowsAffected = db.update(
+                        "INSERT INTO Purchase (user_id, supplier_id, book_id, quantity, cost_per_unit, total_cost, purchase_date) VALUES (?, ?, ?, ?, ?, ?, NOW())",
+                        purchaseParams
+                );
+                
+                if (rowsAffected > 0) {
+                    // Actualizar las copias del libro
+                    String[] updateParams = {String.valueOf(quantity), String.valueOf(bookId)};
+                    db.update("UPDATE Book SET copies = copies - ? WHERE id = ?", updateParams);
+                    
+                    JOptionPane.showMessageDialog(null, "Compra realizada con éxito.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se pudo registrar la compra.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "El libro no está disponible para la compra.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al realizar la compra: " + e.getMessage());
+        }
+    }
+    
+    private void handleLoanBook(int bookId) {
+        // Validar si hay copias disponibles
+        Database db = new Database();
+        ResultSet rs = db.executeQuery("SELECT copies FROM Book WHERE id = ?", new String[]{String.valueOf(bookId)});
+        
+        try {
+            if (rs != null && rs.next()) {
+                int copies = rs.getInt("copies");
+                if (copies <= 0) {
+                    JOptionPane.showMessageDialog(this, "No hay copias disponibles para préstamo.");
+                    return;
+                }
+
+                // Calcular return_date (14 días después del préstamo)
+                String returnDateQuery = "DATE_ADD(NOW(), INTERVAL 14 DAY)";
+
+                // Insertar préstamo con return_date
+                String insertLoanQuery = "INSERT INTO Loan (user_id, book_id, loan_date, return_date, status) VALUES (?, ?, NOW(), " + returnDateQuery + ", 'active')";
+                String[] params = {String.valueOf(Auth.userData[0]), String.valueOf(bookId)};
+                db.update(insertLoanQuery, params);
+
+                // Actualizar copias
+                db.update("UPDATE Book SET copies = copies - 1 WHERE id = ?", new String[]{String.valueOf(bookId)});
+                
+                JOptionPane.showMessageDialog(this, "Préstamo realizado con éxito.");
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo encontrar el libro.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al procesar el préstamo: " + e.getMessage());
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -106,6 +848,30 @@ public class view extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JButton btnAdminCategory;
+    private javax.swing.JButton btnAdminLoans;
+    private javax.swing.JButton btnAdminSuppliers;
+    private javax.swing.JButton btnAdminUser;
+    private javax.swing.JButton btnBooks;
+    private javax.swing.JButton btnClose;
+    private javax.swing.JButton btnLoan;
+    private javax.swing.JButton btnLogout;
+    private javax.swing.JButton btnMyPurchases;
+    private javax.swing.JButton btnNewBook;
+    private javax.swing.JButton btnProg;
+    private javax.swing.JButton btnReviews;
+    private javax.swing.JButton btnSearch;
+    private javax.swing.JButton btnShowAll;
+    private javax.swing.JComboBox<String> cboCriteria;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JPanel pnlAdmin;
+    private javax.swing.JTable tblBooks;
+    private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables
 }

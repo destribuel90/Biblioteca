@@ -4,7 +4,15 @@
  */
 package code;
 
+import code.database.Database;
+import code.helpers.Auth;
 import code.helpers.InputValidator;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import code.helpers.Sets;
 
 /**
  *
@@ -42,6 +50,7 @@ public class frmLogin extends javax.swing.JFrame {
         jLabel3.setText("jLabel3");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
         setResizable(false);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
@@ -96,7 +105,7 @@ public class frmLogin extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(25, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -140,7 +149,7 @@ public class frmLogin extends javax.swing.JFrame {
                         .addGroup(layout.createSequentialGroup()
                             .addGap(110, 110, 110)
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGap(0, 54, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
@@ -164,14 +173,46 @@ public class frmLogin extends javax.swing.JFrame {
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         String email = txtEmail.getText();
+        String password = new String(txtpPassword.getPassword());
         boolean isEmail = InputValidator.validateEmail(email);
         lblEmailError.setText(InputValidator.getValidationError("email", isEmail));
 
         if (isEmail && txtpPassword.getPassword().length > 0) {
-            //Validar en la BD y logear al usuario
+            login(email, password);
         }
 
     }//GEN-LAST:event_btnLoginActionPerformed
+
+    public void login(String email, String password) {
+        //Validar en la BD y logear al usuario
+        Database db = new Database();
+        String[] params = {email, password};
+        ResultSet rs = db.executeQuery("SELECT * FROM libraryuser WHERE email = ? AND password = ?", params);
+
+        try {
+            //Login exitoso
+            if (rs != null && rs.next()) {
+                //Guardando los datos de sesión
+                Auth.setActiveSession();
+                try {
+                    Auth.setUserData(Sets.resultSetToArray(rs));
+                } catch (SQLException ex) {
+                    Logger.getLogger(frmLogin.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                //Mostrando vista principal
+                dispose();
+                try {
+                    new view().setVisible(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(frmLogin.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Email y/o contraseña incorrectos");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(frmLogin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     private void lblRegisterMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblRegisterMouseClicked
         dispose();
